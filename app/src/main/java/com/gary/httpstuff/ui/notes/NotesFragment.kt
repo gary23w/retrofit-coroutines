@@ -1,6 +1,7 @@
 
 package com.gary.httpstuff.ui.notes
 
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +10,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gary.httpstuff.R
 import com.gary.httpstuff.model.Task
+import com.gary.httpstuff.networking.NetworkStatusChecker
 import com.gary.httpstuff.networking.RemoteApi
 import com.gary.httpstuff.ui.notes.dialog.AddTaskDialogFragment
 import com.gary.httpstuff.ui.notes.dialog.TaskOptionsDialogFragment
@@ -25,6 +27,10 @@ class NotesFragment : Fragment(), AddTaskDialogFragment.TaskAddedListener,
 
   private val adapter by lazy { TaskAdapter(::onItemSelected) }
   private val remoteApi = RemoteApi()
+
+  private val networkStatusChecker by lazy {
+    NetworkStatusChecker(activity?.getSystemService(ConnectivityManager::class.java))
+  }
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
       savedInstanceState: Bundle?): View? {
@@ -68,11 +74,17 @@ class NotesFragment : Fragment(), AddTaskDialogFragment.TaskAddedListener,
 
   private fun getAllTasks() {
     progress.visible()
-    remoteApi.getTasks { tasks, error ->
-      if (tasks.isNotEmpty()) {
-        onTaskListReceived(tasks)
-      } else if (error != null) {
-        onGetTasksFailed()
+
+    networkStatusChecker.performIfConnectedToInternet {
+
+      remoteApi.getTasks { tasks, error ->
+        activity?.runOnUiThread {
+          if (tasks.isNotEmpty()) {
+            onTaskListReceived(tasks)
+          } else if (error != null) {
+            onGetTasksFailed()
+          }
+        }
       }
     }
   }

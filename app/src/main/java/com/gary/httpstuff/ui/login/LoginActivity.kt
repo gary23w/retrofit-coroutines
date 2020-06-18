@@ -2,11 +2,13 @@
 package com.gary.httpstuff.ui.login
 
 import android.content.Intent
+import android.net.ConnectivityManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.gary.httpstuff.App
 import com.gary.httpstuff.R
 import com.gary.httpstuff.model.request.UserDataRequest
+import com.gary.httpstuff.networking.NetworkStatusChecker
 import com.gary.httpstuff.networking.RemoteApi
 import com.gary.httpstuff.ui.main.MainActivity
 import com.gary.httpstuff.ui.register.RegisterActivity
@@ -19,12 +21,22 @@ import kotlinx.android.synthetic.main.activity_login.*
  */
 class LoginActivity : AppCompatActivity() {
 
+
+
   private val remoteApi = RemoteApi()
 
+
+  private val networkStatusChecker by lazy {
+    NetworkStatusChecker(getSystemService(ConnectivityManager::class.java))
+  }
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
     setContentView(R.layout.activity_login)
     initUi()
+
+    if(App.getToken().isNotBlank()) {
+      startActivity(MainActivity.getIntent(this))
+    }
   }
 
   private fun initUi() {
@@ -42,11 +54,13 @@ class LoginActivity : AppCompatActivity() {
   }
 
   private fun logUserIn(userDataRequest: UserDataRequest) {
-    remoteApi.loginUser(userDataRequest) { token: String?, throwable: Throwable? ->
-      if (token != null && token.isNotBlank()) {
-        onLoginSuccess(token)
-      } else if (throwable != null) {
-        showLoginError()
+    networkStatusChecker.performIfConnectedToInternet {
+      remoteApi.loginUser(userDataRequest) { token: String?, throwable: Throwable? ->
+        if (token != null && token.isNotBlank()) {
+          onLoginSuccess(token)
+        } else if (throwable != null) {
+          showLoginError()
+        }
       }
     }
   }

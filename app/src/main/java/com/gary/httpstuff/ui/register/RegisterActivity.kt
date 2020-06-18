@@ -1,10 +1,12 @@
 
 package com.gary.httpstuff.ui.register
 
+import android.net.ConnectivityManager
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import com.gary.httpstuff.R
 import com.gary.httpstuff.model.request.UserDataRequest
+import com.gary.httpstuff.networking.NetworkStatusChecker
 import com.gary.httpstuff.networking.RemoteApi
 import com.gary.httpstuff.utils.gone
 import com.gary.httpstuff.utils.toast
@@ -17,6 +19,9 @@ import kotlinx.android.synthetic.main.activity_register.*
  */
 class RegisterActivity : AppCompatActivity() {
 
+  private val networkStatusChecker by lazy {
+    NetworkStatusChecker(getSystemService(ConnectivityManager::class.java))
+  }
   private val remoteApi = RemoteApi()
 
   override fun onCreate(savedInstanceState: Bundle?) {
@@ -34,12 +39,16 @@ class RegisterActivity : AppCompatActivity() {
 
   private fun processData(username: String, email: String, password: String) {
     if (username.isNotBlank() && email.isNotBlank() && password.isNotBlank()) {
-      remoteApi.registerUser(UserDataRequest(email, password, username)) { message, error ->
-        if (message != null) {
-          toast(message)
-          onRegisterSuccess()
-        } else if (error != null) {
-          onRegisterError()
+      networkStatusChecker.performIfConnectedToInternet {
+        remoteApi.registerUser(UserDataRequest(email, password, username)) { message, error ->
+          runOnUiThread {
+            if (message != null) {
+              toast(message)
+              onRegisterSuccess()
+            } else if (error != null) {
+              onRegisterError()
+            }
+          }
         }
       }
     } else {
