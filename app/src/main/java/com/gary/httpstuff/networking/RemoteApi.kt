@@ -60,6 +60,6 @@ class RemoteApi {
   }
 
   fun getUserProfile(onUserProfileReceived: (UserProfile?, Throwable?) -> Unit) {
-    onUserProfileReceived(UserProfile("mail@mail.com", "Filip", 10), null)
+    onUserProfileReceived(UserProfile("mail@mail.com", "NotFilip", 10), null)
   }
 }
