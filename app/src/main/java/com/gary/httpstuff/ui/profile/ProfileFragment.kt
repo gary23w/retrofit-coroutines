@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.gary.httpstuff.App
 import com.gary.httpstuff.R
+import com.gary.httpstuff.model.Success
 import com.gary.httpstuff.networking.RemoteApi
 import com.gary.httpstuff.ui.login.LoginActivity
 import kotlinx.android.synthetic.main.fragment_profile.*
@@ -30,11 +31,11 @@ class ProfileFragment : Fragment() {
     super.onViewCreated(view, savedInstanceState)
     initUi()
 
-    remoteApi.getUserProfile { userProfile, _ ->
-      if (userProfile != null) {
-        userEmail.text = userProfile.email
-        userName.text = getString(R.string.user_name_text, userProfile.name)
-        numberOfNotes.text = getString(R.string.number_of_notes_text, userProfile.numberOfNotes)
+    remoteApi.getUserProfile { result ->
+      if (result is Success) {
+        userEmail.text = result.data.email
+        userName.text = getString(R.string.user_name_text, result.data.name)
+        numberOfNotes.text = getString(R.string.number_of_notes_text, result.data.numberOfNotes)
       }
     }
   }

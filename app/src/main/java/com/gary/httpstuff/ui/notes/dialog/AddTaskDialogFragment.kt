@@ -15,6 +15,7 @@ import androidx.fragment.app.DialogFragment
 import com.gary.httpstuff.App
 import com.gary.httpstuff.R
 import com.gary.httpstuff.model.PriorityColor
+import com.gary.httpstuff.model.Success
 import com.gary.httpstuff.model.Task
 import com.gary.httpstuff.model.request.AddTaskRequest
 import com.gary.httpstuff.networking.NetworkStatusChecker
@@ -88,11 +89,11 @@ class AddTaskDialogFragment : DialogFragment() {
     val priority = prioritySelector.selectedItemPosition + 1
 
     networkStatusChecker.performIfConnectedToInternet {
-      remoteApi.addTask(AddTaskRequest(title, content, priority)) { task, error ->
+      remoteApi.addTask(AddTaskRequest(title, content, priority)) { result ->
 
-          if (task != null) {
-            onTaskAdded(task)
-          } else if (error != null) {
+          if (result is Success) {
+            onTaskAdded(result.data)
+          } else {
             onTaskAddFailed()
           }
 

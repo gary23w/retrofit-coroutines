@@ -12,6 +12,7 @@ import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
 import com.gary.httpstuff.App
 import com.gary.httpstuff.R
+import com.gary.httpstuff.model.Success
 import com.gary.httpstuff.networking.NetworkStatusChecker
 import com.gary.httpstuff.networking.RemoteApi
 import kotlinx.android.synthetic.main.fragment_dialog_task_options.*
@@ -70,9 +71,9 @@ class TaskOptionsDialogFragment : DialogFragment() {
     if (taskId.isEmpty()) dismissAllowingStateLoss()
 
     deleteTask.setOnClickListener {
-      remoteApi.deleteTask { error ->
+      remoteApi.deleteTask(taskId) { result ->
 
-          if (error == null) {
+          if (result is Success) {
             taskOptionSelectedListener?.onTaskDeleted(taskId)
           }
           dismissAllowingStateLoss()

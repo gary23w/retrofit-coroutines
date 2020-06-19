@@ -2,6 +2,8 @@
 
 package com.gary.httpstuff.model.response
 
-import com.squareup.moshi.Json
+import kotlinx.serialization.Serializable
 
-data class LoginResponse( @field:Json(name = "token")val token: String? = "")
+@Serializable
+
+data class LoginResponse(val token: String? = "")

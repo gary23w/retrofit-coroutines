@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.gary.httpstuff.App
 import com.gary.httpstuff.R
+import com.gary.httpstuff.model.Success
 import com.gary.httpstuff.model.Task
 import com.gary.httpstuff.networking.NetworkStatusChecker
 import com.gary.httpstuff.networking.RemoteApi
@@ -81,11 +82,11 @@ class NotesFragment : Fragment(), AddTaskDialogFragment.TaskAddedListener,
 
     networkStatusChecker.performIfConnectedToInternet {
 
-      remoteApi.getTasks { tasks, error ->
+      remoteApi.getTasks { result ->
 
-          if (tasks.isNotEmpty()) {
-            onTaskListReceived(tasks)
-          } else if (error != null) {
+          if (result is Success) {
+            onTaskListReceived(result.data)
+          } else  {
             onGetTasksFailed()
           }
       }
