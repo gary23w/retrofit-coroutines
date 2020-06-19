@@ -2,23 +2,27 @@
 package com.gary.httpstuff.ui.notes.dialog
 
 import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
+import com.gary.httpstuff.App
 import com.gary.httpstuff.R
 import com.gary.httpstuff.networking.NetworkStatusChecker
 import com.gary.httpstuff.networking.RemoteApi
 import kotlinx.android.synthetic.main.fragment_dialog_task_options.*
 
 
+@RequiresApi(Build.VERSION_CODES.M)
 class TaskOptionsDialogFragment : DialogFragment() {
 
   private var taskOptionSelectedListener: TaskOptionSelectedListener? = null
 
-  private val remoteApi = RemoteApi()
+  private val remoteApi = App.remoteApi
 
   private val networkStatusChecker by lazy {
     NetworkStatusChecker(activity?.getSystemService(ConnectivityManager::class.java))
@@ -67,13 +71,12 @@ class TaskOptionsDialogFragment : DialogFragment() {
 
     deleteTask.setOnClickListener {
       remoteApi.deleteTask { error ->
-        activity?.runOnUiThread {
+
           if (error == null) {
             taskOptionSelectedListener?.onTaskDeleted(taskId)
           }
           dismissAllowingStateLoss()
         }
-      }
     }
 
     completeTask.setOnClickListener {

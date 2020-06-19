@@ -19,7 +19,7 @@ import kotlinx.android.synthetic.main.fragment_profile.*
  */
 class ProfileFragment : Fragment() {
 
-  private val remoteApi = RemoteApi()
+  private val remoteApi = App.remoteApi
 
   override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
       savedInstanceState: Bundle?): View? {

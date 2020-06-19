@@ -3,7 +3,9 @@ package com.gary.httpstuff.ui.login
 
 import android.content.Intent
 import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import com.gary.httpstuff.App
 import com.gary.httpstuff.R
@@ -19,11 +21,12 @@ import kotlinx.android.synthetic.main.activity_login.*
 /**
  * Displays the Login screen, with the options to head over to the Register screen.
  */
+@RequiresApi(Build.VERSION_CODES.M)
 class LoginActivity : AppCompatActivity() {
 
 
 
-  private val remoteApi = RemoteApi()
+  private val remoteApi = App.remoteApi
 
 
   private val networkStatusChecker by lazy {
@@ -45,7 +48,7 @@ class LoginActivity : AppCompatActivity() {
       val password = passwordInput.text.toString()
 
       if (email.isNotBlank() && password.isNotBlank()) {
-        logUserIn(UserDataRequest(email, password))
+        logUserIn(UserDataRequest("",email, password))
       } else {
         showLoginError()
       }

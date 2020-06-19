@@ -1,5 +1,5 @@
 <resources>
-  <string name="app_name">Random</string>
+  <string name="app_name">Retrofit Stuff</string>
   <string name="email_input_hint">Email</string>
   <string name="password_input_hint">Password</string>
   <string name="login_button_text">Login</string>

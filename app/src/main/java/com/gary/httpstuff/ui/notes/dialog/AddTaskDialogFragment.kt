@@ -2,6 +2,7 @@
 package com.gary.httpstuff.ui.notes.dialog
 
 import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
 import android.view.LayoutInflater
@@ -9,7 +10,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ArrayAdapter
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.DialogFragment
+import com.gary.httpstuff.App
 import com.gary.httpstuff.R
 import com.gary.httpstuff.model.PriorityColor
 import com.gary.httpstuff.model.Task
@@ -23,10 +26,11 @@ import kotlinx.android.synthetic.main.fragment_dialog_new_task.*
 /**
  * Dialog fragment to create a new task.
  */
+@RequiresApi(Build.VERSION_CODES.M)
 class AddTaskDialogFragment : DialogFragment() {
 
   private var taskAddedListener: TaskAddedListener? = null
-  private val remoteApi = RemoteApi()
+  private val remoteApi = App.remoteApi
 
   private val networkStatusChecker by lazy {
     NetworkStatusChecker(activity?.getSystemService(ConnectivityManager::class.java))
@@ -85,13 +89,13 @@ class AddTaskDialogFragment : DialogFragment() {
 
     networkStatusChecker.performIfConnectedToInternet {
       remoteApi.addTask(AddTaskRequest(title, content, priority)) { task, error ->
-        activity?.runOnUiThread {
+
           if (task != null) {
             onTaskAdded(task)
           } else if (error != null) {
             onTaskAddFailed()
           }
-        }
+
       }
       clearUi()
     }

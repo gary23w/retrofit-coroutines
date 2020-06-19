@@ -2,12 +2,15 @@
 package com.gary.httpstuff.ui.notes
 
 import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.annotation.RequiresApi
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.gary.httpstuff.App
 import com.gary.httpstuff.R
 import com.gary.httpstuff.model.Task
 import com.gary.httpstuff.networking.NetworkStatusChecker
@@ -22,11 +25,12 @@ import kotlinx.android.synthetic.main.fragment_notes.*
 /**
  * Fetches and displays notes from the API.
  */
+@RequiresApi(Build.VERSION_CODES.M)
 class NotesFragment : Fragment(), AddTaskDialogFragment.TaskAddedListener,
     TaskOptionsDialogFragment.TaskOptionSelectedListener {
 
   private val adapter by lazy { TaskAdapter(::onItemSelected) }
-  private val remoteApi = RemoteApi()
+  private val remoteApi = App.remoteApi
 
   private val networkStatusChecker by lazy {
     NetworkStatusChecker(activity?.getSystemService(ConnectivityManager::class.java))
@@ -78,13 +82,12 @@ class NotesFragment : Fragment(), AddTaskDialogFragment.TaskAddedListener,
     networkStatusChecker.performIfConnectedToInternet {
 
       remoteApi.getTasks { tasks, error ->
-        activity?.runOnUiThread {
+
           if (tasks.isNotEmpty()) {
             onTaskListReceived(tasks)
           } else if (error != null) {
             onGetTasksFailed()
           }
-        }
       }
     }
   }
