@@ -15,13 +15,16 @@ import com.gary.httpstuff.R
 import com.gary.httpstuff.model.Success
 import com.gary.httpstuff.model.Task
 import com.gary.httpstuff.networking.NetworkStatusChecker
-import com.gary.httpstuff.networking.RemoteApi
 import com.gary.httpstuff.ui.notes.dialog.AddTaskDialogFragment
 import com.gary.httpstuff.ui.notes.dialog.TaskOptionsDialogFragment
 import com.gary.httpstuff.utils.gone
 import com.gary.httpstuff.utils.toast
 import com.gary.httpstuff.utils.visible
 import kotlinx.android.synthetic.main.fragment_notes.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.DisposableHandle
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * Fetches and displays notes from the API.
@@ -81,16 +84,15 @@ class NotesFragment : Fragment(), AddTaskDialogFragment.TaskAddedListener,
     progress.visible()
 
     networkStatusChecker.performIfConnectedToInternet {
-
-      remoteApi.getTasks { result ->
-
+      GlobalScope.launch(Dispatchers.Main) {
+        val result = remoteApi.getTasks()
           if (result is Success) {
             onTaskListReceived(result.data)
-          } else  {
+          } else {
             onGetTasksFailed()
           }
+        }
       }
-    }
   }
 
   private fun checkList(notes: List<Task>) {

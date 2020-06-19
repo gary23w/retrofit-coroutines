@@ -14,8 +14,10 @@ import com.gary.httpstuff.App
 import com.gary.httpstuff.R
 import com.gary.httpstuff.model.Success
 import com.gary.httpstuff.networking.NetworkStatusChecker
-import com.gary.httpstuff.networking.RemoteApi
 import kotlinx.android.synthetic.main.fragment_dialog_task_options.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 @RequiresApi(Build.VERSION_CODES.M)
@@ -71,21 +73,23 @@ class TaskOptionsDialogFragment : DialogFragment() {
     if (taskId.isEmpty()) dismissAllowingStateLoss()
 
     deleteTask.setOnClickListener {
-      remoteApi.deleteTask(taskId) { result ->
+      networkStatusChecker.performIfConnectedToInternet {
+        GlobalScope.launch(Dispatchers.Main) {
+          val result = remoteApi.deleteTask(taskId)
 
-          if (result is Success) {
+          if(result is Success) {
             taskOptionSelectedListener?.onTaskDeleted(taskId)
           }
           dismissAllowingStateLoss()
         }
+      }
     }
 
     completeTask.setOnClickListener {
       networkStatusChecker.performIfConnectedToInternet {
-
-        remoteApi.completeTask(taskId) { error ->
-
-          if (error == null) {
+        GlobalScope.launch(Dispatchers.Main) {
+          val result = remoteApi.completeTask(taskId)
+          if(result is Success) {
             taskOptionSelectedListener?.onTaskCompleted(taskId)
           }
           dismissAllowingStateLoss()
